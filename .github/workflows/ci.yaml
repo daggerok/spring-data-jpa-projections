@@ -1,0 +1,38 @@
+name: CI
+on:
+  push:
+  #pull_request:
+  workflow_dispatch:
+    inputs:
+      trigger:
+        description: Type m to triggre manual jobs
+        required: false
+        default: ''
+env:
+  JAVA_VERSION: 1.8
+jobs:
+  mvnw:
+    name: maven wrapper build
+    #if: startsWith(github.event.inputs.trigger, 'm')
+    #  || startsWith(github.event.inputs.trigger, 'M')
+    #if: github.event.inputs.trigger == ''
+    #  || !startsWith(github.event.inputs.trigger, 'm')
+    #  || !startsWith(github.event.inputs.trigger, 'M')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/cache@v1
+      with:
+        path: |
+          ~/.m2
+          ~/.npm
+          ~/.gradle
+          ~/.docker
+          /tmp/fullstack-vaadin-boot-apps.m2
+          !~/.m2/repository/com/gituhb/daggerok
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/pom.xml') }}
+    - uses: actions/setup-java@v1
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+    - run: cd $GITHUB_WORKSPACE ; ./mvnw
